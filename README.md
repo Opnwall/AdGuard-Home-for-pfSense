@@ -41,7 +41,7 @@ pfSense 默认由 Unbound DNS Resolver 监听 `53` 端口。如果希望通过 A
 
 插件安装不会自动修改 Unbound 端口，避免破坏现有 DNS 配置。请在确认 AdGuard Home 初始化正常后手动切换。
 
-## 构建
+## 编译构建
 
 需要在 FreeBSD 或 pfSense 主机上构建：
 
@@ -63,7 +63,7 @@ src/usr/local/bin/AdGuardHome_freebsd_amd64.tar.gz
 ```text
 https://static.adguard.com/adguardhome/release/AdGuardHome_freebsd_amd64.tar.gz
 ```
-## 安装
+## 安装命令
 
 ```sh
 pkg add -f dist/pfSense-pkg-adguardhome.pkg
@@ -75,7 +75,7 @@ http://<pfsense-host>:3000/
 ```
 如果 Unbound 仍在占用 `53` 端口，首次初始化 AdGuard Home 时可以先把 DNS 监听端口设置为 `5353` 或其他空闲端口，待初始化完成后再切换正式链路。
 
-## 正式接管 53 端口
+## 接管端口
 
 先停止 AdGuard Home，在 pfSense Web UI 中进入：
 
@@ -96,7 +96,7 @@ dns:
 ```
 然后重启服务。
 
-## 验证
+## 检查验证
 
 查看端口监听：
 
@@ -115,45 +115,11 @@ sockstat -4 -l | egrep ':(53|5353|3000)'
 dig @127.0.0.1 -p 53 bing.com
 dig @127.0.0.1 -p 5353 bing.com
 ```
-
-## 设置无法保存
-
-如果 AdGuard Home Web UI 中保存过滤器、DNS 上游或其他设置失败，请先检查日志：
-
-```sh
-tail -80 /var/log/adguardhome.log
-```
-
-如果看到类似下面的错误：
-
-```text
-requesting https://dns10.quad9.net:443/dns-query: context deadline exceeded
-reading from url: Get "https://adguardteam.github.io/..."
-```
-
-说明 AdGuard Home 当前配置的 DoH 上游无法访问，保存过滤器 URL 时的在线校验失败。此时请把 AdGuard Home 的上游 DNS 改成本机 Unbound：
-
-```yaml
-dns:
-  upstream_dns:
-    - 127.0.0.1:5353
-  bootstrap_dns:
-    - 127.0.0.1:5353
-```
-
-修正后再测试：
-
-```sh
-dig @127.0.0.1 -p 53 bing.com
-```
-
-能正常返回解析结果后，再回到 AdGuard Home Web UI 保存设置。
-
-## 回滚
+## 回滚设置
 
 如果需要恢复 pfSense 默认 DNS 行为，先停止 adguardhome服务。然后在 pfSense Web UI 中把 DNS Resolver 端口改回 `53` 并应用，最后重启 Unbound。
 
-## 卸载
+## 卸载命令
 
 ```sh
 pkg delete -y pfSense-pkg-adguardhome
