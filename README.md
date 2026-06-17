@@ -12,9 +12,6 @@
   <img src="https://img.shields.io/badge/pfSense-CE%202.8.1%20%7C%20Plus%2026.03-212121?logo=pfsense&logoColor=white">
   <img src="https://img.shields.io/badge/Platform-amd64-blue?logo=amd">
   <img src="https://img.shields.io/badge/AdGuard%20Home-Supported-67b279?logo=adguard">
-  <img src="https://img.shields.io/github/license/Opnwall/AdGuard-Home-for-pfSense">
-  <img src="https://img.shields.io/github/v/release/Opnwall/AdGuard-Home-for-pfSense">
-
 </p>
 
 AdGuard Home 是一个基于 DNS 的全网广告拦截和隐私保护解决方案，可为家庭和企业网络中的所有设备提供统一的 DNS 过滤服务。所有客户端（如手机、电脑、智能电视和 IoT 设备）的域名请求都会先经过 AdGuard Home，由其负责拦截广告、跟踪器、恶意域名，并提供安全、可控的 DNS 解析能力。
