@@ -5,8 +5,8 @@
        alt="AdGuard Home Logo">
 </p>
 <h1 align="center">AdGuard Home for pfSense</h1>
-<div align="center">  
-    <div align="center"> 中文 | <a href="README.en.md">English</div>      
+<div align="center">
+  中文 | <a href="README.en.md">English</a><br><br>
 </div>
 <p align="center">
   <img src="https://img.shields.io/badge/pfSense-CE%202.8.1%20%7C%20Plus%2026.03-212121?logo=pfsense&logoColor=white">
