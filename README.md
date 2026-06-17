@@ -8,15 +8,12 @@
 <p align="center">
   Native integration of AdGuard Home for pfSense Firewall
 </p>
-
 <p align="center">
-
   <img src="https://img.shields.io/badge/pfSense-CE%202.8.1%20%7C%20Plus%2026.03-212121?logo=pfsense&logoColor=white">
   <img src="https://img.shields.io/badge/Platform-amd64-blue?logo=amd">
   <img src="https://img.shields.io/badge/AdGuard%20Home-Supported-67b279?logo=adguard">
   <img src="https://img.shields.io/github/license/Opnwall/AdGuard-Home-for-pfSense">
   <img src="https://img.shields.io/github/v/release/Opnwall/AdGuard-Home-for-pfSense">
-  <img src="https://img.shields.io/github/stars/Opnwall/AdGuard-Home-for-pfSense?style=social">
 
 </p>
 
