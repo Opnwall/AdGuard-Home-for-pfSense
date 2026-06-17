@@ -1,37 +1,30 @@
 # AdGuard Home for pfSense
 
 <p>
-  ![pfSense CE](https://img.shields.io/badge/pfSense_CE-blue)
-  ![pfSense Plus](https://img.shields.io/badge/pfSense_Plus-green)
   <img src="https://img.shields.io/badge/Platform-x86__64-blue" alt="Platform">
   <img src="https://img.shields.io/badge/AdGuard%20Home-Supported-67b279" alt="AdGuard Home">
 </p>
 
 AdGuard Home 是一个基于 DNS 的全网广告拦截和隐私保护解决方案，可为家庭和企业网络中的所有设备提供统一的 DNS 过滤服务。所有客户端（如手机、电脑、智能电视和 IoT 设备）的域名请求都会先经过 AdGuard Home，由其负责拦截广告、跟踪器、恶意域名，并提供安全、可控的 DNS 解析能力。
 
-本项目是专为 IPFire 防火墙打造的集成项目，提供 AdGuard Home 的一键部署与管理能力。项目包含服务管理脚本、IPFire Web UI 菜单入口、CGI 管理页面以及持久化配置目录，实现与 IPFire 系统的深度集成，让用户能够像管理原生组件一样安装、配置和维护 AdGuard Home。
+本项目是专为 pfSense 防火墙打造的集成项目，提供 AdGuard Home 的一键部署与管理能力。项目包含服务管理脚本、Web UI 菜单入口、CGI 管理页面以及持久化配置目录，实现与 pfSense 系统的深度集成，让用户能够像管理原生组件一样安装、配置和维护 AdGuard Home。
 
-这是一个用于 pfSense CE/Plus 的 AdGuard Home 插件，打包为标准 FreeBSD `pkg`。
+已在以下环境测试通过：
 
-安装后会提供：
+- pfSense CE 2.8.1
+- pfSense Plus 26.03
 
-- rc.d 服务：`/usr/local/etc/rc.d/adguardhome`
-- pfSense 菜单：`Services > AdGuard Home`
-- Web 管理页：`/usr/local/www/adguardhome.php`
-- AdGuard Home 程序：`/usr/local/bin/AdGuardHome`
-- 配置目录：`/usr/local/etc/adguardhome`
-- 工作目录：`/var/db/adguardhome`
-- 日志文件：`/var/log/adguardhome.log`
+![](images/AdGuardHome.png)
 
-## 推荐 DNS 链路
+## 推荐DNS设置
 
-pfSense 默认由 Unbound DNS Resolver 监听 `53` 端口。若希望 AdGuard Home 对局域网客户端生效，推荐链路为：
+pfSense 默认由 Unbound DNS Resolver 监听 `53` 端口。若希望 AdGuard Home 对局域网客户端生效，推荐设置为：
 
 ```text
 客户端 -> AdGuard Home:53 -> Unbound DNS Resolver:5353 -> 上游 DNS
 ```
 
-这样做的含义是：
+这样做的目标是：
 
 - 局域网客户端继续使用 pfSense 的 `53` 端口作为 DNS。
 - AdGuard Home 监听 `0.0.0.0:53`，负责广告过滤、查询日志和统计。
@@ -47,54 +40,40 @@ pfSense 默认由 Unbound DNS Resolver 监听 `53` 端口。若希望 AdGuard Ho
 ```sh
 sh build.sh
 ```
-
 默认会生成：
 
 ```text
 dist/pfSense-pkg-adguardhome.pkg
 ```
-
 构建脚本会优先使用：
 
 ```text
 src/usr/local/bin/AdGuardHome_freebsd_amd64.tar.gz
 ```
-
 如果本地资产不存在，会从 AdGuard 官方 Release 下载：
 
 ```text
 https://static.adguard.com/adguardhome/release/AdGuardHome_freebsd_amd64.tar.gz
 ```
-
 ## 安装
 
 ```sh
 pkg add -f dist/pfSense-pkg-adguardhome.pkg
-service adguardhome start
 ```
-
 首次启动后打开：
 
 ```text
 http://<pfsense-host>:3000/
 ```
-
 如果 Unbound 仍在占用 `53` 端口，首次初始化 AdGuard Home 时可以先把 DNS 监听端口设置为 `5353` 或其他空闲端口，待初始化完成后再切换正式链路。
 
 ## 正式接管 53 端口
 
-先停止 AdGuard Home：
-
-```sh
-service adguardhome stop
-```
-
-在 pfSense Web UI 中进入：
+先停止 AdGuard Home，在 pfSense Web UI 中进入：
 
 ```text
-Services > DNS Resolver > General Settings
+服务 > DNS 解析 > 常规设置
 ```
-
 将 DNS Resolver 的监听端口从 `53` 修改为 `5353`，并保存应用。建议让 Unbound 只服务本机上游链路，至少确保 `127.0.0.1:5353` 可用。
 
 然后在 AdGuard Home Web UI 中设置：
@@ -107,13 +86,7 @@ dns:
   upstream_dns:
     - 127.0.0.1:5353
 ```
-
-重启服务：
-
-```sh
-service unbound restart
-service adguardhome start
-```
+然后重启服务。
 
 ## 验证
 
@@ -122,7 +95,6 @@ service adguardhome start
 ```sh
 sockstat -4 -l | egrep ':(53|5353|3000)'
 ```
-
 期望结果：
 
 - `AdGuardHome` 监听 `*:53`
@@ -132,8 +104,8 @@ sockstat -4 -l | egrep ':(53|5353|3000)'
 测试 DNS：
 
 ```sh
-dig @127.0.0.1 -p 53 example.com
-dig @127.0.0.1 -p 5353 example.com
+dig @127.0.0.1 -p 53 bing.com
+dig @127.0.0.1 -p 5353 bing.com
 ```
 
 ## 设置无法保存
@@ -161,41 +133,17 @@ dns:
     - 127.0.0.1:5353
 ```
 
-也可以直接在 shell 中修正当前配置：
-
-```sh
-cp -a /usr/local/etc/adguardhome/AdGuardHome.yaml /usr/local/etc/adguardhome/AdGuardHome.yaml.bak.$(date +%Y%m%d%H%M%S)
-perl -0pi -e 's/(  upstream_dns:\n)(?:    - .*\n)+/${1}    - 127.0.0.1:5353\n/s; s/(  bootstrap_dns:\n)(?:    - .*\n)+/${1}    - 127.0.0.1:5353\n/s' /usr/local/etc/adguardhome/AdGuardHome.yaml
-service adguardhome restart
-```
-
 修正后再测试：
 
 ```sh
-dig @127.0.0.1 -p 53 example.com
+dig @127.0.0.1 -p 53 bing.com
 ```
 
 能正常返回解析结果后，再回到 AdGuard Home Web UI 保存设置。
 
 ## 回滚
 
-如果需要恢复 pfSense 默认 DNS 行为：
-
-```sh
-service adguardhome stop
-```
-
-然后在 pfSense Web UI 中把 DNS Resolver 端口改回 `53` 并应用：
-
-```text
-Services > DNS Resolver > General Settings
-```
-
-最后重启 Unbound：
-
-```sh
-service unbound restart
-```
+如果需要恢复 pfSense 默认 DNS 行为，先停止 adguardhome服务。然后在 pfSense Web UI 中把 DNS Resolver 端口改回 `53` 并应用，最后重启 Unbound。
 
 ## 卸载
 
